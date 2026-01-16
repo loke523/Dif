@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<title>KederMig</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+:root {
+  --green: #2e7d32;
+  --light: #e6f5ea;
+  --card: #ffffff;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background: var(--light);
+}
+
+header {
+  background: var(--green);
+  color: white;
+  padding: 18px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+#map {
+  height: 45vh;
+}
+
+.panel {
+  background: var(--card);
+  margin: -25px 15px 15px;
+  padding: 15px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+h3 {
+  margin-top: 0;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  background: var(--green);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.activity {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>Hvad sker der i nærheden?</header>
+<div id="map"></div>
+
+<div class="panel">
+  <h3>Opret aktivitet</h3>
+
+  <label>Aktivitet</label>
+  <select id="type">
+    <option>⚽ Fodbold</option>
+    <option>🏀 Basket</option>
+    <option>🎮 Gaming</option>
+    <option>🚶 Gåtur</option>
+    <option>🎲 Andet</option>
+  </select>
+
+  <label>Tid</label>
+  <input type="time" id="time">
+
+  <label>Alder</label>
+  <input type="text" id="age" placeholder="fx 15-18">
+
+  <label>Beskrivelse</label>
+  <input type="text" id="desc" placeholder="Hvor og hvad?">
+
+  <button onclick="addActivity()">+ Opret aktivitet</button>
+</div>
+
+<div class="panel">
+  <h3>Aktiviteter i nærheden</h3>
+  <div id="list"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let map = L.map('map').setView([55.6761, 12.5683], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+let activities = [];
+let markers = [];
+
+function addActivity() {
+  let activity = {
+    type: type.value,
+    time: time.value,
+    age: age.value,
+    desc: desc.value,
+    lat: map.getCenter().lat,
+    lng: map.getCenter().lng
+  };
+
+  activities.push(activity);
+  addMarker(activity);
+  renderList();
+}
+
+function addMarker(a) {
+  let marker = L.marker([a.lat, a.lng]).addTo(map);
+  marker.bindPopup(
+    `<b>${a.type}</b><br>
+     ⏰ ${a.time}<br>
+     👥 ${a.age}<br>
+     📍 ${a.desc}`
+  );
+  markers.push(marker);
+}
+
+function renderList() {
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+
+  activities.forEach(a => {
+    list.innerHTML += `
+      <div class="activity">
+        <b>${a.type}</b><br>
+        ⏰ ${a.time} | 👥 ${a.age}<br>
+        ${a.desc}
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
